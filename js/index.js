@@ -2,32 +2,34 @@ import { Watermark, hexToRgb } from "./WatermarkCanvas.js";
 
 document.addEventListener('DOMContentLoaded', () => {
     const currentYear = new Date().getFullYear();
-    document.getElementById('copyright-year').textContent = currentYear;
+    const copyrightYearElement = document.getElementById('copyright-year');
+    copyrightYearElement.textContent = currentYear;
 
-    const getDefaultOptions = () => {
-        return {
-            text: "stares.com.tw",
-            fontSize: 16,
-            fillStyle: "rgba(100, 100, 100, 0.4)",
-            watermarkWidth: 200,
-            watermarkHeight: 100,
-            direction: 'horizontal',
-            opacity: 40
-        };
-    };
+    const getDefaultOptions = () => ({
+        text: "stares.com.tw",
+        fontSize: 16,
+        fillStyle: "rgba(100, 100, 100, 0.4)",
+        watermarkWidth: 200,
+        watermarkHeight: 100,
+        direction: 'horizontal',
+        opacity: 40
+    });
 
-    const canvas = document.getElementById('myCanvas');
+    const getElement = (id) => document.getElementById(id);
+    const getClass = (className) => document.querySelector(className);
+
+    const canvas = getElement('myCanvas');
     const watermarkInstance = new Watermark(canvas, getDefaultOptions());
-    const imageLoader = document.getElementById('imageLoader');
-    const rotateBtn = document.getElementById('rotateBtn');
-    const saveBtn = document.getElementById('saveBtn');
-    const opacityInput = document.getElementById('opacity');
-    const opacityValueDisplay = document.querySelector('.range-value');
-    const toggleSettingsBtn = document.getElementById('toggleSettingsBtn');
-    const settingsPanel = document.querySelector('.settings-panel');
-    const navbarA = document.querySelector('.navbar a');
-    const navbar = document.querySelector('.navbar');
-    const saveFormat = document.getElementById('saveFormat');
+    const imageLoader = getElement('imageLoader');
+    const rotateBtn = getElement('rotateBtn');
+    const saveBtn = getElement('saveBtn');
+    const opacityInput = getElement('opacity');
+    const opacityValueDisplay = getClass('.range-value');
+    const toggleSettingsBtn = getElement('toggleSettingsBtn');
+    const settingsPanel = getClass('.settings-panel');
+    const navbarA = getClass('.navbar a');
+    const navbar = getClass('.navbar');
+    const saveFormat = getElement('saveFormat');
 
     toggleSettingsBtn.addEventListener('click', () => {
         const isActive = settingsPanel.classList.toggle('active');
@@ -38,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let currentImageUrl = null;
 
-    imageLoader.addEventListener('change', function (e) {
+    imageLoader.addEventListener('change', (e) => {
         const file = e.target.files[0];
         if (file) {
             if (currentImageUrl) {
@@ -55,35 +57,36 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const settingsInputs = document.querySelectorAll('.settings-panel input');
     const settingsSelects = document.querySelectorAll('.settings-panel select');
+    const debouncedApplySettings = debounce(applySettings, 300);
 
-    settingsInputs.forEach(input => {
-        input.addEventListener('input', debounce(applySettings, 300));
+    settingsInputs.forEach((input) => {
+        input.addEventListener('input', debouncedApplySettings);
     });
 
-    settingsSelects.forEach(select => {
-        select.addEventListener('change', debounce(applySettings, 300));
+    settingsSelects.forEach((select) => {
+        select.addEventListener('change', debouncedApplySettings);
     });
 
-    opacityInput.addEventListener('input', function () {
-        opacityValueDisplay.textContent = `${this.value}%`;
+    opacityInput.addEventListener('input', () => {
+        opacityValueDisplay.textContent = `${opacityInput.value}%`;
     });
 
     function applySettings() {
-        const text = document.getElementById('watermarkText').value || getDefaultOptions().text;
-        const fontSize = parseInt(document.getElementById('fontSize').value, 10) || getDefaultOptions().fontSize;
-        const fillStyle = document.getElementById('fontColor').value || getDefaultOptions().fillStyle;
-        const opacity = parseFloat(document.getElementById('opacity').value) / 100 || getDefaultOptions().opacity / 100;
-        const watermarkWidth = parseInt(document.getElementById('watermarkWidth').value, 10) || getDefaultOptions().watermarkWidth;
-        const watermarkHeight = parseInt(document.getElementById('watermarkHeight').value, 10) || getDefaultOptions().watermarkHeight;
-        const direction = document.getElementById('direction').value || getDefaultOptions().direction;
+        const watermarkText = getElement('watermarkText').value || getDefaultOptions().text;
+        const fontSize = parseInt(getElement('fontSize').value, 10) || getDefaultOptions().fontSize;
+        const fontColor = getElement('fontColor').value || getDefaultOptions().fillStyle;
+        const opacityValue = parseFloat(opacityInput.value) / 100 || getDefaultOptions().opacity / 100;
+        const watermarkWidth = parseInt(getElement('watermarkWidth').value, 10) || getDefaultOptions().watermarkWidth;
+        const watermarkHeight = parseInt(getElement('watermarkHeight').value, 10) || getDefaultOptions().watermarkHeight;
+        const direction = getElement('direction').value || getDefaultOptions().direction;
 
         watermarkInstance.setOptions({
-            text,
+            text: watermarkText,
             fontSize,
-            fillStyle: `rgba(${hexToRgb(fillStyle)}, ${opacity})`,
+            fillStyle: `rgba(${hexToRgb(fontColor)}, ${opacityValue})`,
             watermarkWidth,
             watermarkHeight,
-            direction
+            direction,
         });
     }
 

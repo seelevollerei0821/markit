@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh-hant-tw">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta http-equiv="Content-Language" content="zh-hant-tw, en">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="description" content="MarkIt - 安全快速的線上圖片水印工具，無需上傳，即時在瀏覽器中為您的圖片添加水印。">
+    <meta property="og:title" content="MarkIt - Online Watermark Tool">
+    <meta property="og:image" content="https://markit.stares.com.tw/images/logo.png">
+    <meta property="og:url" content="https://markit.stares.com.tw/">
+    <meta property="og:description" content="MarkIt - 快速且安全的在線圖片水印工具，直接在您的瀏覽器中操作，無需上傳圖片。">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/index.css">
+    <title>MarkIt - 圖片水印工具</title>
+</head>
+
+<body>
+    <header class="navbar">
+        <a href="/" class="logo-link">
+            <img src="/images/logo-128.webp" width="40" height="40" alt="Server logo" class="logo-img">
+            <h1 class="app-title">MarkIt - 圖片水印工具</h1>
+        </a>
+        <div class="button-container">
+            <button id="rotateBtn" class="btn">旋轉圖片</button>
+            <button id="saveBtn" class="btn">保存圖片</button>
+            <button id="toggleSettingsBtn" class="btn toggle-settings-btn">水印設置</button>
+            <a href="https://github.com/staresgaze/markit" target="_blank" rel="noopener noreferrer"
+                class="social-icon">
+                <img src="/svg/github-mark.svg" alt="github-mark.svg">
+            </a>
+        </div>
+    </header>
+
+    <main class="container">
+        <aside class="settings-panel">
+            <section class="security-info">
+                <h2>安全性與隱私權保護</h2>
+                <p>我們非常注重大家的安全和隱私權喔。這個圖片浮水印工具完全是在你的瀏覽器裡運作的，不會把你的照片或個資傳到伺服器上去。</p>
+                <p>所有的編輯和處理動作都是在你的裝置上完成的，保證資料安全，絕對不會留下你上傳的照片或是生成的圖片，更不會追蹤或收集你的個人資訊。放心使用！</p>
+            </section>
+            <section class="alipay-qrcode">
+                <h2>感謝您的支持</h2>
+                <p>若您覺得本工具對您有幫助，並希望支持我們，請<a href="/images/alipay-qrcode.png"
+                        target="_blank">掃描這裡的支付寶二維碼進行捐贈</a>。您的支持將幫助我們持續改進。</p>
+            </section>
+            <form class="settings">
+                <h2>設置面板</h2>
+                <div class="setting-item">
+                    <label for="direction">方向:</label>
+                    <select id="direction">
+                        <option value="diagonal">對角線</option>
+                        <option value="vertical">垂直</option>
+                        <option value="horizontal" selected>水平</option>
+                    </select>
+                </div>
+                <div class="setting-item">
+                    <label for="watermarkText">文案:</label>
+                    <input type="text" id="watermarkText">
+                </div>
+                <div class="setting-item">
+                    <label for="fontSize">字體大小 (px):</label>
+                    <input type="number" id="fontSize">
+                </div>
+                <div class="setting-item">
+                    <label for="watermarkWidth">框寬 (px):</label>
+                    <input type="number" id="watermarkWidth">
+                </div>
+                <div class="setting-item">
+                    <label for="watermarkHeight">框高 (px):</label>
+                    <input type="number" id="watermarkHeight">
+                </div>
+                <div class="setting-item">
+                    <label for="fontColor">顏色:</label>
+                    <input type="color" id="fontColor">
+                </div>
+                <div class="setting-item">
+                    <label for="opacity">透明度:</label>
+                    <input type="range" id="opacity" min="0" max="100" step="1">
+                    <span class="range-value"></span>
+                </div>
+            </form>
+        </aside>
+        <div class="canvas-container">
+            <canvas id="myCanvas"></canvas>
+            <label for="imageLoader" class="file-upload">
+                <input type="file" id="imageLoader" name="imageLoader" accept="image/*">
+                <span>選擇圖片檔案</span>
+            </label>
+        </div>
+    </main>
+    <footer class="copyright">
+        <p>&copy; <span id="copyright-year"></span> 无瑕洁白 stares.com.tw. All rights reserved.</p>
+    </footer>
+    <script type="module" src="/js/index.js"></script>
+</body>
+
+</html>

@@ -205,7 +205,8 @@ input[type="text"],
 input[type="color"],
 input[type="range"],
 input[type="number"],
-select#direction {
+select#direction,
+select#saveFormat {
     width: 100%;
     padding: 10px;
     border: 1px solid #eedde5;
@@ -217,7 +218,8 @@ input[type="text"]:focus,
 input[type="color"]:focus,
 input[type="range"]:focus,
 input[type="number"]:focus,
-select#direction:focus {
+select#direction:focus,
+select#saveFormat:focus {
     outline: none;
     border: 1px solid #d1a9c3;
 }

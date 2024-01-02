@@ -27,6 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const settingsPanel = document.querySelector('.settings-panel');
     const navbarA = document.querySelector('.navbar a');
     const navbar = document.querySelector('.navbar');
+    const saveFormat = document.getElementById('saveFormat');
 
     toggleSettingsBtn.addEventListener('click', () => {
         const isActive = settingsPanel.classList.toggle('active');
@@ -50,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     rotateBtn.addEventListener('click', () => watermarkInstance.rotate());
-    saveBtn.addEventListener('click', () => watermarkInstance.save());
+    saveBtn.addEventListener('click', () => watermarkInstance.save(saveFormat.value));
 
     const settingsInputs = document.querySelectorAll('.settings-panel input');
     const settingsSelects = document.querySelectorAll('.settings-panel select');

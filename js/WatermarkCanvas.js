@@ -1,4 +1,5 @@
 const canvasUtils = (() => {
+    // 檢查環境是否支援Canvas相關功能
     const isSupported = {
         canvas: !!document.createElement("canvas").getContext,
         imageData: !!CanvasRenderingContext2D.prototype.getImageData,
@@ -10,6 +11,7 @@ const canvasUtils = (() => {
         throw new Error("Canvas, DataURL, or btoa not supported");
     };
 
+    // 將Canvas縮放至指定的尺寸
     const scaleCanvas = (canvas, width = canvas.width, height = canvas.height) => {
         const scaledCanvas = document.createElement("canvas");
         Object.assign(scaledCanvas, { width, height });
@@ -18,11 +20,13 @@ const canvasUtils = (() => {
         return scaledCanvas;
     };
 
+    // 從Canvas獲取DataURL
     const getDataURL = (canvas, type, width, height) => {
         const scaledCanvas = scaleCanvas(canvas, width, height);
         return scaledCanvas.toDataURL(type);
     };
 
+    // 保存DataURL為文件
     const saveFile = (dataURL, filename) => {
         const aLink = document.createElement("a");
         Object.assign(aLink, { download: filename, href: dataURL });
@@ -31,8 +35,10 @@ const canvasUtils = (() => {
         document.body.removeChild(aLink);
     };
 
+    // 糾正圖片格式的類型
     const fixType = (type) => `image/${type.toLowerCase().replace(/jpg/i, "jpeg")}`;
 
+    // 將數據編碼為base64格式
     const encodeData = (data) => {
         if (typeof data === "string") {
             return window.btoa(data);
@@ -43,57 +49,82 @@ const canvasUtils = (() => {
         }
     };
 
+    // 獲取Canvas的圖像數據
     const getImageData = (canvas) => {
         const context = canvas.getContext("2d");
         return context.getImageData(0, 0, canvas.width, canvas.height);
     };
 
+    // 創建位圖文件頭部
+    const createBitmapFileHeader = (bfSize) => {
+        return [
+            0x42, 0x4d, // 'BM'標誌
+            ...intToBytesLE(bfSize, 4),
+            0, 0, 0, 0, // 保留位
+            54, 0, 0, 0 // 數據偏移量
+        ];
+    };
+
+    // 創建位圖信息頭部
+    const createBitmapInfoHeader = (width, height) => {
+        const biSizeImage = width * height * 3;
+        return [
+            40, 0, 0, 0, // 頭部大小
+            ...intToBytesLE(width, 4),
+            ...intToBytesLE(height, 4),
+            1, 0,         // 平面數
+            24, 0,        // 每像素位數
+            0, 0, 0, 0,   // 壓縮方式
+            ...intToBytesLE(biSizeImage, 4),
+            0, 0, 0, 0,   // 水平解析度
+            0, 0, 0, 0,   // 垂直解析度
+            0, 0, 0, 0,   // 使用的顏色數
+            0, 0, 0, 0    // 重要顏色數
+        ];
+    };
+
+    // 將整數轉換為小端格式的字節數組
+    const intToBytesLE = (value, length) => {
+        const bytes = [];
+        for (let i = 0; i < length; i++) {
+            bytes.push((value >> (8 * i)) & 0xff);
+        }
+        return bytes;
+    };
+
+    // 生成位圖圖像數據
     const genBitmapImage = (oData) => {
         const biWidth = oData.width;
         const biHeight = oData.height;
         const biSizeImage = biWidth * biHeight * 3;
-        const bfSize = biSizeImage + 54;
+        const bfSize = biSizeImage + 54; // 頭部大小總是54
 
-        const BITMAPFILEHEADER = [
-            0x42, 0x4d,
-            bfSize & 0xff, (bfSize >> 8) & 0xff, (bfSize >> 16) & 0xff, (bfSize >> 24) & 0xff,
-            0, 0,
-            0, 0,
-            54, 0, 0, 0
-        ];
-
-        const BITMAPINFOHEADER = [
-            40, 0, 0, 0,
-            biWidth & 0xff, (biWidth >> 8) & 0xff, (biWidth >> 16) & 0xff, (biWidth >> 24) & 0xff,
-            biHeight & 0xff, (biHeight >> 8) & 0xff, (biHeight >> 16) & 0xff, (biHeight >> 24) & 0xff,
-            1, 0,
-            24, 0,
-            0, 0, 0, 0,
-            biSizeImage & 0xff, (biSizeImage >> 8) & 0xff, (biSizeImage >> 16) & 0xff, (biSizeImage >> 24) & 0xff,
-            0, 0, 0, 0,
-            0, 0, 0, 0
-        ];
+        const fileHeader = createBitmapFileHeader(bfSize);
+        const infoHeader = createBitmapInfoHeader(biWidth, biHeight);
 
         const aImgData = oData.data;
-        const strPixelData = [];
-        const padding = (4 - (biWidth * 3 % 4)) % 4;
+        const strPixelData = generatePixelData(aImgData, biWidth, biHeight);
 
-        for (let y = biHeight - 1; y >= 0; y--) {
-            for (let x = 0; x < biWidth; x++) {
-                const i = (x + y * biWidth) * 4;
-                const strPixelRow = [aImgData[i + 2], aImgData[i + 1], aImgData[i]];
-                strPixelData.push(...strPixelRow);
-            }
-            for (let p = 0; p < padding; p++) {
-                strPixelData.push(0);
-            }
-        }
-
-        const strEncoded = encodeData(BITMAPFILEHEADER.concat(BITMAPINFOHEADER)) + encodeData(strPixelData);
-
-        return strEncoded;
+        return encodeData([...fileHeader, ...infoHeader, ...strPixelData]);
     };
 
+    // 生成像素數據
+    const generatePixelData = (imgData, width, height) => {
+        const pixelData = [];
+        const padding = (4 - (width * 3 % 4)) % 4; // 行尾填充
+
+        for (let y = height - 1; y >= 0; y--) {
+            for (let x = 0; x < width; x++) {
+                const i = (x + y * width) * 4;
+                pixelData.push(imgData[i + 2], imgData[i + 1], imgData[i]); // BGR格式
+            }
+            pixelData.push(...new Array(padding).fill(0));
+        }
+
+        return pixelData;
+    };
+
+    // 轉換Canvas為圖像
     const convertToImage = (canvas, width, height, type = "png") => {
         if (!isSupported.canvas || !isSupported.dataURL) {
             throw new Error("Canvas or DataURL not supported");
@@ -109,6 +140,7 @@ const canvasUtils = (() => {
         return img;
     };
 
+    // 保存Canvas為圖像文件
     const saveAsImage = (canvas, width, height, type = "png") => {
         const fixedType = fixType(type);
         const filename = `image.${fixedType.split('/')[1]}`;
@@ -123,12 +155,10 @@ const canvasUtils = (() => {
         saveAsImage,
         saveAsPNG: (canvas, width, height) => saveAsImage(canvas, width, height, "png"),
         saveAsJPEG: (canvas, width, height) => saveAsImage(canvas, width, height, "jpeg"),
-        saveAsGIF: (canvas, width, height) => saveAsImage(canvas, width, height, "gif"),
         saveAsBMP: (canvas, width, height) => saveAsImage(canvas, width, height, "bmp"),
         convertToImage,
         convertToPNG: (canvas, width, height) => convertToImage(canvas, width, height, "png"),
         convertToJPEG: (canvas, width, height) => convertToImage(canvas, width, height, "jpeg"),
-        convertToGIF: (canvas, width, height) => convertToImage(canvas, width, height, "gif"),
         convertToBMP: (canvas, width, height) => convertToImage(canvas, width, height, "bmp"),
     };
 })();
@@ -278,9 +308,22 @@ class Watermark {
         this._draw();
     }
 
-    save() {
+    save(saveFormat) {
         if (!this.img) return;
-        canvasUtils.saveAsPNG(this.canvas);
+        switch (saveFormat) {
+            case "jpeg":
+                canvasUtils.saveAsJPEG(this.canvas);
+                break;
+            case "gif":
+                canvasUtils.saveAsGIF(this.canvas);
+                break;
+            case "bmp":
+                canvasUtils.saveAsBMP(this.canvas);
+                break;
+            case "png":
+                canvasUtils.saveAsPNG(this.canvas);
+                break;
+        }
     }
 
     setOptions(obj = {}) {

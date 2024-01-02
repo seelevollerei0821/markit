@@ -55,6 +55,14 @@
             <form class="settings">
                 <h2>設置面板</h2>
                 <div class="setting-item">
+                    <label for="saveFormat">保存格式:</label>
+                    <select id="saveFormat">
+                        <option value="png" selected>PNG</option>
+                        <option value="jpeg">JPEG</option>
+                        <option value="bmp">BMP</option>
+                    </select>                    
+                </div>
+                <div class="setting-item">
                     <label for="direction">方向:</label>
                     <select id="direction">
                         <option value="diagonal">對角線</option>
@@ -64,19 +72,19 @@
                 </div>
                 <div class="setting-item">
                     <label for="watermarkText">文案:</label>
-                    <input type="text" id="watermarkText">
+                    <input type="text" id="watermarkText" placeholder="stares.com.tw">
                 </div>
                 <div class="setting-item">
                     <label for="fontSize">字體大小 (px):</label>
-                    <input type="number" id="fontSize">
+                    <input type="number" id="fontSize" placeholder="：3">
                 </div>
                 <div class="setting-item">
                     <label for="watermarkWidth">框寬 (px):</label>
-                    <input type="number" id="watermarkWidth">
+                    <input type="number" id="watermarkWidth" placeholder="增大數值增加左右間距">
                 </div>
                 <div class="setting-item">
                     <label for="watermarkHeight">框高 (px):</label>
-                    <input type="number" id="watermarkHeight">
+                    <input type="number" id="watermarkHeight" placeholder="增大數值增加上下間距">
                 </div>
                 <div class="setting-item">
                     <label for="fontColor">顏色:</label>
@@ -85,7 +93,7 @@
                 <div class="setting-item">
                     <label for="opacity">透明度:</label>
                     <input type="range" id="opacity" min="0" max="100" step="1">
-                    <span class="range-value"></span>
+                    <span class="range-value">早安你好</span>
                 </div>
             </form>
         </aside>
